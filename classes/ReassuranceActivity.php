@@ -159,9 +159,18 @@ class ReassuranceActivity extends ObjectModel
         $result = Db::getInstance()->executeS($sql);
 
         $xmlMimes = ['image/svg', 'image/svg+xml'];
-        foreach ($result as &$item) {
+
+
+        /* With the new code I construct the full path to the image file using _PS_ROOT_DIR_ and the relative path. 
+        Then, I check if the file actually exists using file_exists before proceeding to determine its MIME type. 
+        This should ensure that the paths are correctly resolved and the file existence is checked properly.*/
+       foreach ($result as &$item) {
+            $relativePath = $item['custom_icon'];
+            $fullPath = _PS_ROOT_DIR_ . $relativePath;
+        
             $item['is_svg'] = !empty($item['custom_icon'])
-                && (in_array(self::getMimeType(_PS_ROOT_DIR_ . $item['custom_icon']), $xmlMimes));
+                && file_exists($fullPath)
+                && in_array(self::getMimeType($fullPath), $xmlMimes);
         }
 
         return $result;
